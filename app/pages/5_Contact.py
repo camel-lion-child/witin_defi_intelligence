@@ -1,6 +1,8 @@
 import streamlit as st
+from app.layout import setup_page
 
-st.set_page_config(page_title="Contact — WITIN", layout="wide")
+setup_page("Dashboards — WITIN")
+
 st.title("Contact")
 
 with st.form("contact"):
