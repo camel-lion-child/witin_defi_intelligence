@@ -62,28 +62,10 @@ Built with **Streamlit** as a lightweight research website:
 
 ## Architecture
 
-pipelines/
-  ingest/
-    defillama_market.py      # DeFi macro data ingestion
-    binance_market.py        # Market prices ingestion
-  run_etl.py                 # Orchestration
-
-warehouse/
-  marts/
-    fact_defi_tvl.parquet
-    dim_protocols_top.parquet
-    dim_categories.parquet
-    meta_refresh.parquet
-
-Home.py
-  layout.py
-  styles.py
-  pages/
-    Dashboards.py
-    Markets.py
-    Services.py
-    About.py
-    Contact.py
+- Streamlit multi-page app used for interactive analytics and visualization.
+- Market data fetched from Binance public REST API (US endpoint for cloud stability) and DefiLlama.
+- Data ingestion and transformations handled via lightweight Python pipelines.
+- Analytical datasets stored as Parquet and DuckDB for fast local access.
 
 ---
 
