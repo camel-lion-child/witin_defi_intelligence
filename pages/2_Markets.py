@@ -9,7 +9,12 @@ from layout import setup_page
 
 setup_page("Markets — WITIN")
 
-BINANCE_BASE = "https://api.binance.com"
+BINANCE_BASE = "https://api.binance.us"
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; WITIN-DeFi-Intelligence/1.0)",
+    "Accept": "application/json",
+}
 
 ASSETS = {
     "Bitcoin (BTC)": "BTCUSDT",
@@ -31,7 +36,8 @@ ASSETS = {
 def fetch_klines(symbol: str, interval: str, limit: int) -> pd.DataFrame:
     url = f"{BINANCE_BASE}/api/v3/klines"
     params = {"symbol": symbol, "interval": interval, "limit": limit}
-    r = requests.get(url, params=params, timeout=30)
+
+    r = requests.get(url, params=params, headers=HEADERS, timeout=30)
     r.raise_for_status()
     data = r.json()
 
@@ -89,4 +95,3 @@ st.line_chart(df.set_index("Timestamp")["Close"])
 
 st.markdown("### Recent candles")
 st.dataframe(df.tail(20), use_container_width=True, hide_index=True)
-
