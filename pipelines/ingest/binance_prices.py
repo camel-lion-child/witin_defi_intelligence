@@ -9,22 +9,29 @@ SYMBOLS = {
     "USDC": "USDCUSDT",
 }
 
-BINANCE_BASE = "https://api.binance.com"
+BINANCE_BASE = "https://api.binance.us"
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; WITIN-DeFi-Intelligence/1.0)",
+    "Accept": "application/json",
+}
 
 def fetch_prices_usdt() -> pd.DataFrame:
     """
     Lấy giá lastPrice theo USDT từ Binance.
-    Output schema: asset_symbol, price_usd (dùng USDT proxy), ts_utc
+    Output schema: asset_symbol, price_usd (dùng USDT proxy), ts_utc, source, quote
     """
     url = f"{BINANCE_BASE}/api/v3/ticker/price"
-    r = requests.get(url, timeout=20)
-    r.raise_for_status()
-    data = r.json()  # list of {"symbol": "...", "price": "..."}
 
+    r = requests.get(url, headers=HEADERS, timeout=20)
+    r.raise_for_status()
+
+    data = r.json()  
     lookup = {row["symbol"]: row["price"] for row in data}
 
     ts = datetime.now(timezone.utc).isoformat()
     rows = []
+
     for asset, bin_symbol in SYMBOLS.items():
         price = lookup.get(bin_symbol)
         rows.append(
