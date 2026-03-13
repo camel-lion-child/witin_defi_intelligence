@@ -19,7 +19,7 @@ HEADERS = {
 def fetch_prices_usdt() -> pd.DataFrame:
     """
     take lastPrice in USDT from Binance.
-    Output schema: asset_symbol, price_usd (dùng USDT proxy), ts_utc, source, quote
+    Output schema: asset_symbol, price_usd (using USDT proxy), ts_utc, source, quote
     """
     url = f"{BINANCE_BASE}/api/v3/ticker/price"
 
