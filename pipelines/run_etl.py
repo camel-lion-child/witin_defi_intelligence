@@ -72,7 +72,7 @@ def main():
     write_parquet(cats, MARTS / "dim_categories.parquet")
     write_parquet(meta, MARTS / "meta_refresh.parquet")
 
-    print("✅ ETL done")
+    print("ETL done")
     print(f"- {MARTS / 'fact_defi_tvl.parquet'}")
     print(f"- {MARTS / 'dim_protocols_top.parquet'}")
     print(f"- {MARTS / 'dim_categories.parquet'}")
