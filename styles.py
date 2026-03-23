@@ -1,6 +1,12 @@
+"""This module customizes the Streamlit UI by injecting global CSS styles and defining reusable components 
+such as KPI cards for a more polished dashboard.
+
+Ce module personnalise l’interface Streamlit en injectant des styles CSS globaux et en créant des composants réutilisables 
+comme des cartes KPI pour un dashboard plus professionnel."""
+
 import streamlit as st
 
-def inject_global_styles():
+def inject_global_styles(): #inject custom CSS into streamlit app to override default styling
     st.markdown(
         """
         <style>
@@ -99,7 +105,7 @@ def inject_global_styles():
         unsafe_allow_html=True,
     )
 
-def card(title: str, value: str, caption=None):
+def card(title: str, value: str, caption=None): #render a custom KPI card component (title + value + optional caption)
     cap_html = f'<div class="muted" style="margin-top:6px;">{caption}</div>' if caption else ""
     st.markdown(
         f"""
