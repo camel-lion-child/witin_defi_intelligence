@@ -50,7 +50,7 @@ with c3:
 
 st.divider()
 
-st.markdown("## What we deliver")
+st.markdown("## What we deliver") #value proposition section
 left, right = st.columns([1, 1], gap="large")
 with left:
     st.markdown(
