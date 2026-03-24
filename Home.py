@@ -1,8 +1,13 @@
+"""I built a data platform that combines market, macro, and blockchain data to analyze how capital flows and risk evolve across financial systems.
+
+J’ai construit une plateforme de données qui combine données de marché, macro et blockchain pour analyser les flux de capital 
+et l’évolution du risque dans les systèmes financiers."""
+
 from pathlib import Path
 import subprocess
 import sys
 
-MARTS = Path("warehouse/marts")
+MARTS = Path("warehouse/marts") #check if mart layer exists, otherwise trigger ETL pipeline
 if not MARTS.exists() or not any(MARTS.glob("*.parquet")):
     subprocess.check_call([sys.executable, "-m", "pipelines.run_etl"])
 
@@ -12,14 +17,14 @@ from styles import card
 
 setup_page("WITIN")
 
-st.markdown(
+st.markdown( #main headline
     """
     <div class="hero-title">The future of finance, decoded.</div>
     """,
     unsafe_allow_html=True,
 )
 
-st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True) #spacing
 
 st.markdown(
     """
