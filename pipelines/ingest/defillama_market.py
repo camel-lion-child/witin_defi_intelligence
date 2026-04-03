@@ -1,24 +1,30 @@
+"""This module provides reusable DeFiLlama ingestion functions to fetch total TVL, protocol snapshots, and category snapshots, 
+while handling unstable API payloads defensively.
+
+Ce module fournit des fonctions réutilisables d’ingestion DeFiLlama pour récupérer la TVL totale, 
+les snapshots de protocoles et les snapshots de catégories, tout en gérant de manière robuste les variations de payload de l’API."""
+
 import requests
 import pandas as pd
 from datetime import datetime, timezone
 from typing import Any, Optional
 
-BASE = "https://api.llama.fi"
+BASE = "https://api.llama.fi" #base URL for Defillama API
 
 
 def _now_utc_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(timezone.utc).isoformat() #return current UTC timestamp in ISO format
 
 
 def _get_json(url: str, params: Optional[dict] = None, timeout: int = 30) -> Any:
-    r = requests.get(url, params=params, timeout=timeout)
+    r = requests.get(url, params=params, timeout=timeout) #genetic helper to call API endpoint & return json
     if r.status_code == 404:
-        return None
-    r.raise_for_status()
+        return None #return None instead of failing if endpoint doesn't exist
+    r.raise_for_status() #raise exeption for other HTTP errors
     return r.json()
 
 
-def _to_float(v):
+def _to_float(v): #safely convert a value to float
     try:
         return float(v) if v is not None else None
     except Exception:
@@ -31,6 +37,7 @@ def fetch_total_defi_tvl_chart() -> pd.DataFrame:
     Output: ts_utc, tvl_usd, source
     """
     data = _get_json(f"{BASE}/charts")
+    #return empty dataframe if response is missing on invalid
     if data is None or not isinstance(data, list):
         return pd.DataFrame(columns=["ts_utc", "tvl_usd", "source"])
 
@@ -40,12 +47,12 @@ def fetch_total_defi_tvl_chart() -> pd.DataFrame:
             continue
         dt = x.get("date")
         tvl = x.get("totalLiquidityUSD")
-        if dt is None or tvl is None:
+        if dt is None or tvl is None: #skip incomplete observations
             continue
         tvl_f = _to_float(tvl)
         if tvl_f is None:
             continue
-        try:
+        try: #convert unix timestamp safely
             dt_i = int(dt)
         except Exception:
             continue
@@ -54,7 +61,7 @@ def fetch_total_defi_tvl_chart() -> pd.DataFrame:
         )
 
     df = pd.DataFrame(rows)
-    if df.empty:
+    if df.empty: #return empty schema if no valid rows were parsed
         return pd.DataFrame(columns=["ts_utc", "tvl_usd", "source"])
     return df.sort_values("ts_utc").reset_index(drop=True)
 
