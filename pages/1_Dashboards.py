@@ -1,3 +1,8 @@
+"""I build a Streamlit dashboard on top of my data pipeline to monitor market size, capital flows, and protocol activity in real time.
+
+Je construis un dashboard Streamlit basé sur mon pipeline de données pour suivre la taille du marché, 
+les flux de capital et l’activité des protocoles en temps réel."""
+
 from typing import Optional
 import sys
 from pathlib import Path
