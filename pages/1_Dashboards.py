@@ -7,7 +7,7 @@ from typing import Optional
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[1] #add project root to Python path (for module imports)
 sys.path.append(str(ROOT))
 
 import streamlit as st
@@ -19,14 +19,14 @@ from styles import card
 
 setup_page("Dashboards — WITIN")
 
-MARTS = ROOT / "warehouse" / "marts"
+MARTS = ROOT / "warehouse" / "marts" #define mart data paths
 
 TVL_FP = MARTS / "fact_defi_tvl.parquet"
 CATS_FP = MARTS / "dim_categories.parquet"
 PROT_FP = MARTS / "dim_protocols_top.parquet"
 
 
-def _read(fp: Path) -> pd.DataFrame:
+def _read(fp: Path) -> pd.DataFrame: #safe request reader with error handling
     try:
         return pd.read_parquet(fp) if fp.exists() else pd.DataFrame()
     except Exception as e:
@@ -34,7 +34,7 @@ def _read(fp: Path) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def _pct_change(series: pd.Series, periods: int) -> float:
+def _pct_change(series: pd.Series, periods: int) -> float: #compute percentage change over given period
     if series is None or len(series) < periods + 1:
         return 0.0
     latest = float(series.iloc[-1])
@@ -44,7 +44,7 @@ def _pct_change(series: pd.Series, periods: int) -> float:
     return (latest / prev - 1.0) * 100.0
 
 
-def _pick_ts_column(df: pd.DataFrame) -> Optional[str]:
+def _pick_ts_column(df: pd.DataFrame) -> Optional[str]: #detect timestamp column automatically (schema flexibility)
     candidates = [
         "ts_utc",
         "timestamp",
@@ -58,7 +58,7 @@ def _pick_ts_column(df: pd.DataFrame) -> Optional[str]:
     for c in candidates:
         if c in df.columns:
             return c
-    lowered = {c: str(c).lower() for c in df.columns}
+    lowered = {c: str(c).lower() for c in df.columns} #fallback: fuzzy match on column names
     for c, lc in lowered.items():
         if ("ts" in lc) or ("time" in lc) or ("date" in lc):
             return c
@@ -72,19 +72,19 @@ tvl = _read(TVL_FP)
 cats = _read(CATS_FP)
 prot = _read(PROT_FP)
 
-if tvl.empty:
+if tvl.empty: #stop execution if no data available
     st.warning("Missing marts. Run ETL first:\n\n`python3 -m pipelines.run_etl`")
     st.info(f"Expected file at: {TVL_FP}")
     st.stop()
 
-ts_col = _pick_ts_column(tvl)
+ts_col = _pick_ts_column(tvl) #detect timestamp column dynamically
 if ts_col is None:
     st.error(f"Could not find a timestamp column in TVL mart. Columns: {list(tvl.columns)}")
     st.stop()
 
-tvl["ts_utc"] = pd.to_datetime(tvl[ts_col], utc=True, errors="coerce")
+tvl["ts_utc"] = pd.to_datetime(tvl[ts_col], utc=True, errors="coerce") #standardize timestamp
 
-if "tvl_usd" not in tvl.columns:
+if "tvl_usd" not in tvl.columns: #standardize TVL column (handle schema variations)
     fallbacks = ["tvl", "tvlUsd", "tvl_usd_value", "total_tvl_usd", "tvlUSD"]
     tvl_col = next((c for c in fallbacks if c in tvl.columns), None)
     if tvl_col is None:
@@ -96,9 +96,11 @@ else:
 
 tvl = tvl.dropna(subset=["ts_utc", "tvl_usd"]).sort_values("ts_utc")
 
+#KPI metrics
 latest_tvl = float(tvl["tvl_usd"].iloc[-1]) if len(tvl) else 0.0
 tvl_7d = _pct_change(tvl["tvl_usd"], 7)
 
+#KPI cards
 k1, k2, k3 = st.columns(3)
 with k1:
     card("Total DeFi TVL", f"{latest_tvl:,.0f} USD", "Market-wide capital deployed in DeFi")
